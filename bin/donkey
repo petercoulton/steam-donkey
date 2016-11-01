@@ -1,0 +1,33 @@
+#!/usr/bin/env bash
+set +o posix
+
+DONKEY_SCRIPT=$(realpath ${0})
+DONKEY_SCRIPT_DIRECTORY="$(cd "${DONKEY_SCRIPT%/*}/.." && pwd -P)"
+DONKEY_LIB="${DONKEY_SCRIPT_DIRECTORY}/lib/"
+
+
+
+DONKEY_ARGS_COUNT=${#}
+DONKEY_COMMAND=${1}
+shift
+case "${DONKEY_COMMAND}" in
+	help | --help | -h) 	    DONKEY_COMMAND="help" ;;
+	version | --version | -v) 	DONKEY_COMMAND="version" ;;
+esac
+
+if [[ -f "${DONKEY_LIB}/${DONKEY_COMMAND}.sh" ]]; then
+	DONKEY_BASH_COMMAND="${DONKEY_LIB}/${DONKEY_COMMAND}.sh"
+fi
+
+
+
+if [[ -n "${DONKEY_BASH_COMMAND}" ]]; then
+	source "${DONKEY_BASH_COMMAND}"
+	{ "donkey-${DONKEY_COMMAND}" "$@"; exit $?; }
+else
+	echo "Unknown command ${DONKEY_COMMAND}"
+	[[ "$DONKEY_ARG_COUNT" -gt 0 ]] && set -- "$DONKEY_COMMAND" "$@"
+	source "${DONKEY_LIB}/help.sh"
+	{ "donkey-help" "$@"; exit $?; }
+fi
+
