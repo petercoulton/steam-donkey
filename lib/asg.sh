@@ -29,14 +29,13 @@ function donkey-asg-instances() {
 		shift
 	done
 
-
 	if [[ -z "${ASG_NAME}" ]]; then
 		echo "Missing required argument: asg-name"
-		{ donkey-asg-instances-help "$@"; exit $?; }
+		{ "donkey-asg-instances-help" "$@"; exit $?; }
 	else
-		INSTANCE_QUERY="'AutoScalingInstances[?AutoScalingGroupName==\`${ASG_NAME}\`].InstanceId'"
+		INSTANCE_QUERY='AutoScalingInstances[?AutoScalingGroupName==`ASG_NAME`].InstanceId'
 		set -e
-		ASG_INSTANCE_RESULTS=$(echo "aws autoscaling describe-auto-scaling-instances ${PROFILE} ${REGION} --query ${INSTANCE_QUERY} --output text" | sh)
+		ASG_INSTANCE_RESULTS=$(echo "aws autoscaling describe-auto-scaling-instances ${PROFILE} ${REGION} --query ${INSTANCE_QUERY/ASG_NAME/${ASG_NAME}} --output text" | sh)
 		INSTANCE_IDS=$(echo ${ASG_INSTANCE_RESULTS} | sed -e  's/ / /g')
 
 		if [[ -z "${INSTANCE_IDS}" ]]; then
