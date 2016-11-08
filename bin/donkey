@@ -1,16 +1,15 @@
 #!/usr/bin/env bash
 set +o posix
 
-DONKEY_SCRIPT=$(realpath ${0})
+DONKEY_SCRIPT=$(realpath --physical ${0})
 DONKEY_SCRIPT_DIRECTORY="$(cd "${DONKEY_SCRIPT%/*}/.." && pwd -P)"
-DONKEY_LIB="${DONKEY_SCRIPT_DIRECTORY}/lib/"
-
-
+DONKEY_LIB="${DONKEY_SCRIPT_DIRECTORY}/lib"
 
 DONKEY_ARGS_COUNT=${#}
 DONKEY_COMMAND=${1}
 shift
 case "${DONKEY_COMMAND}" in
+	i)	 	    				DONKEY_COMMAND="instances" ;;
 	help | --help | -h) 	    DONKEY_COMMAND="help" ;;
 	version | --version | -v) 	DONKEY_COMMAND="version" ;;
 esac
