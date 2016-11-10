@@ -2,6 +2,10 @@ function donkey-help() {
 	cat <<EOF
 usage: donkey <command>
 
+Options:
+	--profile
+	--region
+
 Available commands:
 EOF
 

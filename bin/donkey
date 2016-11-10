@@ -10,6 +10,7 @@ DONKEY_COMMAND=${1}
 shift
 case "${DONKEY_COMMAND}" in
 	i)	 	    				DONKEY_COMMAND="instances" ;;
+	a)	 	    				DONKEY_COMMAND="asg" ;;
 	help | --help | -h) 	    DONKEY_COMMAND="help" ;;
 	version | --version | -v) 	DONKEY_COMMAND="version" ;;
 esac
