@@ -55,7 +55,7 @@ function donkey-instances-list() {
 		INSTANCE_IDS="--instance-ids $(list-instances ${ASG_NAME} | tr '\n' ' ')"
 	fi
 
-	INSTANCES=$( aws ec2 describe-instances ${INSTANCE_IDS} ${FILTERS} ${PARAMS} \
+	INSTANCES=$( aws ec2 describe-instances ${INSTANCE_IDS} ${PARAMS} \
 		| jq -r '.Reservations[]?.Instances[]? | (.Tags[]?//[]? | select(.Key=="Name")|.Value) as $name | "\(.InstanceId),\($name),\(.PublicDnsName),\(.KeyName)"' \
 		| sed -e 's/^,/-,/' -e 's/,,/,-,/g' -e 's/,/,;/g' \
 		| sort --field-separator , --key=2 )
@@ -64,6 +64,8 @@ function donkey-instances-list() {
 
 	if [[ ! -z "${SEPERATOR}" ]]; then
 		OUTPUT="$(echo "${OUTPUT}" | sed -e "s/[[:space:]]*;/${SEPERATOR}/g" )"
+	else
+		OUTPUT="$(echo "${OUTPUT}" | sed -e "s/;//g" )"
 	fi
 
 	local BOLD="$(tput bold)"
