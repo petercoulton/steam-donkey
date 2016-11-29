@@ -9,19 +9,24 @@ DONKEY_ARGS_COUNT=${#}
 DONKEY_COMMAND=${1}
 shift
 case "${DONKEY_COMMAND}" in
-	i)	 	    				DONKEY_COMMAND="instances" ;;
-	a)	 	    				DONKEY_COMMAND="asg" ;;
+	_*)                         DONKEY_COMMAND="" ;;
 	help | --help | -h) 	    DONKEY_COMMAND="help" ;;
 	version | --version | -v) 	DONKEY_COMMAND="version" ;;
 esac
 
 if [[ -f "${DONKEY_LIB}/${DONKEY_COMMAND}.sh" ]]; then
+
+	# Call bash script
 	DONKEY_BASH_COMMAND="${DONKEY_LIB}/${DONKEY_COMMAND}.sh"
 	source "${DONKEY_BASH_COMMAND}"
 	{ "donkey-${DONKEY_COMMAND}" "$@"; exit $?; }
+
 elif [[ -f "${DONKEY_LIB}/${DONKEY_COMMAND}.rb" ]]; then
+
+	# Call ruby script
 	DONKEY_RUBY_COMMAND="${DONKEY_LIB}/${DONKEY_COMMAND}.rb"
 	{ ruby "${DONKEY_RUBY_COMMAND}" "$@"; exit $?; }
+
 else
 	echo "Unknown command ${DONKEY_COMMAND}"
 	[[ "$DONKEY_ARG_COUNT" -gt 0 ]] && set -- "$DONKEY_COMMAND" "$@"
