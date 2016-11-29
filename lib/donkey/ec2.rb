@@ -12,6 +12,7 @@ module Donkey
       options[:output] ||= :table
 
       output = Donkey::Output::Printer.new(options)
+
       output.add_header 'Name'
       output.add_header 'Public IP'
       output.add_header 'Status'
@@ -21,17 +22,31 @@ module Donkey
       ec2.describe_instances.each do |response|
         response.reservations.each do |reservation|
           reservation.instances.each do |instance|
-            output.add_row do
-              output.add_column 'Name', name_from_tags(instance)
-              output.add_column 'Public IP', instance.public_ip_address
-              output.add_column 'Status', instance.state.name, :color => status_color(instance.state.name)
-              output.add_column 'Key Name', instance.key_name
+            if include_instance?(instance, options)
+              output.add_row do
+                output.add_column 'Name', name_from_tags(instance)
+                output.add_column 'Public IP', instance.public_ip_address
+                output.add_column 'Status', instance.state.name, :color => status_color(instance.state.name)
+                output.add_column 'Key Name', instance.key_name
+              end
             end
           end
         end
       end
 
       output.print options
+    end
+
+    def include_instance?(instance, options)
+      if options.has_key?(:instance_name) && name_from_tags(instance) != options[:instance_name]
+        return false
+      end
+
+      if options.has_key?(:instance_state) && instance_state(instance) != options[:instance_state]
+        return false
+      end
+
+      true
     end
 
     private
@@ -63,6 +78,10 @@ module Donkey
       else
         nil
       end
+    end
+
+    def instance_state instance
+      instance.state.name
     end
   end
 end

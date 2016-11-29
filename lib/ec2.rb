@@ -10,8 +10,8 @@ options = {}
 optparse = OptionParser.new do |opts|
   opts.banner = USAGE
 
-  opts.on('--name NAME') do |profile|
-    options[:profile_name] = profile
+  opts.on('--name NAME') do |name|
+    options[:instance_name] = name
   end
 
   opts.on('--profile PROFILE') do |profile|
@@ -30,14 +30,19 @@ optparse = OptionParser.new do |opts|
     options[:headers] = false
   end
 
-  opts.on("--[no-]headers", "Toggle  column headers") do |v|
+  opts.on("--[no-]headers", "Toggle column headers") do |v|
     options[:headers] = v
+  end
+
+  opts.on("--state STATE", "Filter instances by state") do |state|
+    options[:instance_state] = state
   end
 end
 optparse.parse!
 
 options[:profile_name] ||= 'default'
 options[:output] ||= :table
+options[:headers] = true unless options.has_key? :headers
 
 operation = ARGV.pop || 'list'
 
