@@ -3,8 +3,8 @@ function donkey-help() {
 usage: donkey <command>
 
 Options:
-    --profile
-    --region
+    --profile       Not currently implemented
+    --region        Not currently implemented
 
 Available commands:
 EOF
