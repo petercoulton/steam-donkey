@@ -9,6 +9,7 @@ DONKEY_ARGS_COUNT=${#}
 DONKEY_COMMAND=${1}
 shift
 case "${DONKEY_COMMAND}" in
+	_*)                         DONKEY_COMMAND="" ;;
 	help | --help | -h) 	    DONKEY_COMMAND="help" ;;
 	version | --version | -v) 	DONKEY_COMMAND="version" ;;
 esac
