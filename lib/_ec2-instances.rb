@@ -113,16 +113,22 @@ ec2.describe_instances(search_options).each do |response|
           next
         end
 
-        skip = expected_value.downcase != actual_value.downcase
+        if expected_value.downcase != actual_value.downcase
+          skip = true
+        end
       end
 
       next if skip
 
       puts (values.values.map do |v| 
-        if v.nil? || v.empty?
+        if v.nil? || (v.instance_of?(String) && v.empty?)
           "-" 
         else 
-          v 
+          if v.instance_of?(Time)
+            v.iso8601
+          else
+            v 
+          end
         end 
       end.join(","))
     end
