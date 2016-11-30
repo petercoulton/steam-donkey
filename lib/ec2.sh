@@ -7,12 +7,14 @@ function donkey-ec2-list() {
     while [[ $# > 0 ]]; do
         case "${1}" in
             -r|--raw)                   RAW=true;;
-            -f|--fields)                FIELDS="${2}"; shift;;
+            -f|--fields)                FIELDS="${2}";         shift;;
+            --profile)                  AWS_SETTINGS="${AWS_SETTINGS} AWS_PROFILE=\"${2}\"";    shift;;
+            --region)                   AWS_SETTINGS="${AWS_SETTINGS} AWS_REGION=\"${2}\"";       shift;;
         esac
         shift
     done
 
-    INSTANCES=$(ruby "${DONKEY_LIB}/_ec2-instances.rb" "${FIELDS}")
+    INSTANCES="$(sh -c "${AWS_SETTINGS} ruby "${DONKEY_LIB}/_ec2-instances.rb" "${FIELDS}" ")"
 
     if $RAW; then
         echo "${INSTANCES}" | tail -n +2
@@ -26,8 +28,8 @@ function donkey-ec2-help() {
 usage: donkey ec2 [command]
 
 Options:
-    --profile       Not currently implemented
-    --region        Not currently implemented
+    --profile       AWS shared credentials profile name
+    --region        AWS region
 
 Available commands:
 

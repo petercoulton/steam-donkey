@@ -3,8 +3,8 @@ function donkey-help() {
 usage: donkey <command>
 
 Options:
-    --profile       Not currently implemented
-    --region        Not currently implemented
+    --profile       AWS shared credentials profile name
+    --region        AWS region
 
 Available commands:
 EOF
