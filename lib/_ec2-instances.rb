@@ -1,6 +1,7 @@
 require 'aws-sdk'
+require 'to_regexp'
 
-fields=["Tags.Name", "PublicIpAddress", "InstanceType", "State"]
+fields=["Name", "PublicIpAddress", "InstanceType", "State"]
 
 if ARGV.length > 0
   fields=ARGV[0].split(",") unless ARGV[0].empty?
@@ -17,7 +18,8 @@ class String
 end
 
 def from_tags key, instance
-  tag = instance.tags.find { |tag| tag.key.downcase == key.downcase }
+  key = key.downcase
+  tag = instance.tags.find { |tag| tag.key.downcase == key }
   if tag != nil
     tag[:value]
   else
@@ -30,31 +32,105 @@ def name_from_tags instance
 end
 
 def columns names, instance
-  names.map do |name|
-    if name =~ /^Name$|^Tags\./
-      tag = name.split(".").last
-      next from_tags tag, instance
-    end
+  {}.tap do |result|
+    names.each do |name|
+      if name =~ /^Name$|^Tags\./
+        tag = name.split(".").last
+        result[name] = from_tags(tag, instance)
+        next
+      end
 
-    if name =~ /^State$|State.Name/
-      next instance.state.name
-    end
+      if name =~ /^State$|State.Name/
+        result[name] = instance.state.name
+        next
+      end
 
-    if name =~ /^State\.Code$/
-      next instance.state.code
-    end
+      if name =~ /^State\.Code$/
+        result[name] = instance.state.code
+        next
+      end
 
-    instance.send(name.underscore)
+      result[name] = instance.send(name.underscore) 
+    end    
+  end
+end
+
+def field_names fields
+  fields.map do |field|
+    if field =~ /.+=.+/
+      field.split("=").first
+    else
+      field
+    end
+  end
+end
+
+def field_filters fields
+  {}.tap do |filters|
+    fields.each do |field|
+      if field =~ /.+=.+/
+        name, value = field.split("=")
+        filters[name] = value
+      end
+    end
   end
 end
 
 search_options={}
 
+puts (fields.map do |field|
+  if field.include? "="
+    field.split("=").first
+  else
+    field
+  end
+end.join(","))
+
 ec2 = Aws::EC2::Client.new
 ec2.describe_instances(search_options).each do |response|
   response.reservations.each do |reservation|
     reservation.instances.each do |instance|
-      puts columns(fields, instance).join(",")
+      values = columns(field_names(fields), instance)
+
+      skip = false
+      field_filters(fields).each do |name, value|
+        actual_value = values[name] || ""
+        expected_value = value
+
+        if expected_value =~ /^\?.+/
+          expected_value_regexp = expected_value[1..-1].to_regexp
+          if !(actual_value =~ expected_value_regexp)
+            skip = true
+          end
+          next
+        end
+
+        if expected_value =~ /^!.+/
+          expected_value_regexp = expected_value[1..-1].to_regexp
+          if actual_value =~ expected_value_regexp
+            skip = true
+          end
+          next
+        end
+
+        if expected_value.downcase != actual_value.downcase
+          skip = true
+        end
+      end
+
+      next if skip
+
+      puts (values.values.map do |v| 
+        if v.nil? || (v.instance_of?(String) && v.empty?)
+          "-" 
+        else 
+          if v.instance_of?(Time)
+            v.iso8601
+          else
+            v 
+          end
+        end 
+      end.join(","))
     end
   end
 end

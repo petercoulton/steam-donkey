@@ -5,6 +5,10 @@ DONKEY_SCRIPT=$(realpath --physical ${0})
 DONKEY_SCRIPT_DIRECTORY="$(cd "${DONKEY_SCRIPT%/*}/.." && pwd -P)"
 DONKEY_LIB="${DONKEY_SCRIPT_DIRECTORY}/lib"
 
+if [[ -f "${DONKEY_LIB}/_homebrew-init.sh" ]]; then
+	source "${DONKEY_LIB}/_homebrew-init.sh"
+fi
+
 DONKEY_ARGS_COUNT=${#}
 DONKEY_COMMAND=${1}
 shift
