@@ -15,7 +15,7 @@ function donkey-ec2-list() {
     INSTANCES=$(ruby "${DONKEY_LIB}/_ec2-instances.rb" "${FIELDS}")
 
     if $RAW; then
-        echo "${INSTANCES}"
+        echo "${INSTANCES}" | tail -n +2
     else
         echo "${INSTANCES}" | column -t -s ','
     fi
