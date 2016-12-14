@@ -14,6 +14,7 @@ DONKEY_COMMAND=${1}
 shift
 case "${DONKEY_COMMAND}" in
 	_*)                         DONKEY_COMMAND="" ;;
+	cf)                         DONKEY_COMMAND="cloudformation" ;;
 	help | --help | -h) 	    DONKEY_COMMAND="help" ;;
 	version | --version | -v) 	DONKEY_COMMAND="version" ;;
 esac

@@ -1,10 +1,12 @@
 require 'aws-sdk'
 require 'to_regexp'
 
+filters=[]
 fields=["Name", "PublicIpAddress", "InstanceType", "State"]
 
 if ARGV.length > 0
-  fields=ARGV[0].split(",") unless ARGV[0].empty?
+  filters = ARGV[0].split(",") unless ARGV[0] == "-"
+  fields  = ARGV[1].split(",") unless ARGV[1].nil? or ARGV[1].empty?
 end
 
 class String
@@ -90,10 +92,10 @@ ec2 = Aws::EC2::Client.new
 ec2.describe_instances(search_options).each do |response|
   response.reservations.each do |reservation|
     reservation.instances.each do |instance|
-      values = columns(field_names(fields), instance)
+      values = columns(fields, instance)
 
       skip = false
-      field_filters(fields).each do |name, value|
+      field_filters(filters).each do |name, value|
         actual_value = values[name] || ""
         expected_value = value
 
